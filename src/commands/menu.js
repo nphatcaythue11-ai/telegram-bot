@@ -10,5 +10,4 @@ function sendMainMenu(bot, chatId) {
     };
     bot.sendMessage(chatId, "Chào đằng ấy! Chọn dịch vụ bên dưới để tớ tư vấn lẹ cho nha 👇", options);
 }
-
 module.exports = { sendMainMenu };
