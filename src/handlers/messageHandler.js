@@ -1,13 +1,13 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const config = require('../../config');
 
-// Khởi tạo Não AI Gemini với Key sếp đã cài
+// Khởi tạo Não AI Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const systemInstruction = `BẠN LÀ NGUYÊN PHÁT, CHỦ SHOP "PHÁT CÀY THUÊ". 
-- Tuyệt đối không nhận là AI. Trả lời như người thật bán acc Blox Fruits.
-- Dùng teencode Gen Z: k, kh, dc, r, ae, bro, m, t, sếp.
-- Giá dịch vụ: Max level 50k, Tộc V4 100k, Robux rate 130.
+- Trả lời như người thật, dân chơi Roblox Blox Fruits chuyên nghiệp.
+- Dùng teencode: k, kh, dc, r, ae, bro, m, t, sếp.
+- Giá: Max level 50k, Tộc V4 100k, Robux rate 130.
 - Bank: 0343603537 (BIDV, TRẦN NGUYÊN PHÁT).`;
 
 const chatHistory = new Map();
@@ -18,8 +18,10 @@ async function handleKeywordResponse(bot, msg) {
     bot.sendChatAction(chatId, 'typing');
 
     try {
-        // FIX LỖI 404: Gọi model chuẩn không qua v1beta nếu bản SDK cũ
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // FIX LỖI 404: Ép AI sử dụng phiên bản API ổn định (v1) thay vì v1beta
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+        }, { apiVersion: 'v1' }); // ĐÂY LÀ DÒNG QUAN TRỌNG NHẤT
 
         if (!chatHistory.has(chatId)) { chatHistory.set(chatId, []); }
         const history = chatHistory.get(chatId);
@@ -29,17 +31,16 @@ async function handleKeywordResponse(bot, msg) {
             generationConfig: { maxOutputTokens: 500 }
         });
 
-        // Đưa instruction vào prompt để AI luôn nhớ vai diễn
-        const fullPrompt = `${systemInstruction}\n\nKhách nhắn: ${userText}`;
-        const result = await chat.sendMessage(fullPrompt);
+        // Gửi prompt kèm theo hướng dẫn nhân vật
+        const result = await chat.sendMessage(`System: ${systemInstruction}\n\nUser: ${userText}`);
         let botReply = result.response.text();
 
-        // Lưu trí nhớ
+        // Lưu trí nhớ cho bot
         history.push({ role: "user", parts: [{ text: userText }] });
         history.push({ role: "model", parts: [{ text: botReply }] });
         if (history.length > 6) history.splice(0, 2);
 
-        // Tự động nhả QR khi chốt đơn
+        // Tự động nhận diện Chốt đơn để nhả QR
         let isSendQR = botReply.toLowerCase().includes('qr') || botReply.includes('0343603537');
 
         setTimeout(() => {
@@ -53,7 +54,7 @@ async function handleKeywordResponse(bot, msg) {
 
     } catch (error) {
         console.error("Lỗi AI Chi Tiết:", error);
-        bot.sendMessage(chatId, "Má lag quá t chưa load kịp ý m =))) Bấm menu chọn cho lẹ nha bro 👇", {
+        bot.sendMessage(chatId, "Hệ thống đang bảo trì não xíu sếp ơi =))) Bấm menu chọn cho lẹ nha 👇", {
             reply_markup: JSON.stringify({
                 inline_keyboard: [
                     [{ text: '🎁 Bảng Giá Gamepass / Perm', callback_data: 'menu_gp' }],
