@@ -3,21 +3,15 @@ module.exports = {
     adminId: process.env.ADMIN_ID,
     botOptions: { cooldown: 2000 },
     
-    // CÀI ĐẶT RATE ROBUX
     rateRb: 130, // 1 Robux = 130 VNĐ
     
-    // DANH SÁCH BẢNG GIÁ GAMEPASS
     gamepassList: {
-        "Fast Boats (Thuyền Nhanh)": 350,
-        "2x Boss Drops (Tỉ Lệ Rót Đồ)": 350,
-        "2x Money (X2 Tiền)": 450,
-        "2x Mastery (X2 Thông Thạo)": 450,
-        "Dark Blade (Kiếm Yoru)": 1200,
-        "Fruit Notifier (Dò Trái)": 2700,
+        "Fast Boats (Thuyền Nhanh)": 350, "2x Boss Drops (Tỉ Lệ Rót Đồ)": 350,
+        "2x Money (X2 Tiền)": 450, "2x Mastery (X2 Thông Thạo)": 450,
+        "Dark Blade (Kiếm Yoru)": 1200, "Fruit Notifier (Dò Trái)": 2700,
         "Fruit Storage (Kho Trái)": 400
     },
 
-    // TỪ ĐIỂN FULL TRÁI VĨNH VIỄN (PERM FRUITS) & TÊN LÓNG
     permFruits: {
         "rocket": 50, "spin": 75, "chop": 100, "spring": 180, "bomb": 220,
         "smoke": 250, "spike": 380, "flame": 550, "falcon": 650, 
@@ -38,5 +32,7 @@ module.exports = {
         "dragon": 5000, "rong": 5000, 
         "leopard": 3000, "leo": 3000, "bao": 3000,
         "kitsune": 4000, "kit": 4000, "cao": 4000
-    }
+    },
+
+    liveData: { accKho: [], newProducts: [] }
 };
