@@ -1,7 +1,7 @@
 {
-  "name": "phat-cay-thue-bot",
+  "name": "bot-telegram-phat-cay-thue",
   "version": "1.0.0",
-  "description": "Bot ban acc Blox Fruits của Sếp Phát",
+  "description": "Bot ban acc cua Nguyen Phat",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
