@@ -2,8 +2,10 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ ĐỌC DỮ LIỆU TỪ SEPAY
+app.use(express.json()); 
+
 app.get('/', (req, res) => { res.send('Máy chủ Phát Cày Thuê Bot đang hoạt động trơn tru!'); });
-app.listen(port, () => { console.log(`[Web Server] Đang chạy trên port ${port}`); });
 
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
@@ -17,6 +19,39 @@ if (!token) { console.error("❌ LỖI: Chưa tìm thấy BOT_TOKEN!"); process.
 const bot = new TelegramBot(token, { polling: true });
 const adminStates = new Map();
 
+// ==========================================
+// TÍNH NĂNG MỚI: HỨNG BIẾN ĐỘNG SỐ DƯ SEPAY
+// ==========================================
+app.post('/sepay-webhook', (req, res) => {
+    const data = req.body;
+    
+    // Kiểm tra xem có đúng là tiền cộng vào tài khoản không (transferAmount > 0)
+    if (data && data.transferAmount > 0) {
+        const amount = data.transferAmount.toLocaleString('vi-VN');
+        const content = data.content || "Không có nội dung";
+        const bankCode = data.gateway || "Ngân hàng";
+        
+        // Soạn tin nhắn báo cáo gửi thẳng cho Sếp Phát
+        const notifyMsg = `💰 BIẾN ĐỘNG SỐ DƯ TỰ ĐỘNG 💰\n` +
+                          `💳 Ngân hàng: ${bankCode}\n` +
+                          `➕ Tiền vào: +${amount} VNĐ\n` +
+                          `📝 Nội dung CK: ${content}\n` +
+                          `⏰ Thời gian: ${data.transactionDate}\n\n` +
+                          `👉 Khách chuyển lúa rồi kìa sếp, vứt acc cho khách lẹ 🐧!`;
+        
+        bot.sendMessage(config.adminId, notifyMsg);
+    }
+    
+    // Phản hồi lại cho SePay biết là bot đã nhận tin thành công
+    res.status(200).json({ success: true, message: "Webhook received" });
+});
+
+// Khởi chạy Web Server
+app.listen(port, () => { console.log(`[Web Server] Đang chạy trên port ${port}`); });
+
+// ==========================================
+// CODE BOT TELEGRAM (GIỮ NGUYÊN NHƯ CŨ)
+// ==========================================
 bot.on('message', (msg) => {
     if (!msg.text) return;
     const text = msg.text, chatId = msg.chat.id, fromId = msg.from.id.toString();
@@ -71,7 +106,7 @@ bot.on('callback_query', (query) => {
         case 'menu_boost': response = "Nhận cày thuê uy tín. M muốn cày level hay cày đồ?"; break;
         case 'menu_rb120': response = `Robux 120H siêu mượt, rate ${config.rateRb}. M cần mua số lượng bao nhiêu thì gõ ra (VD: 1500 rb)!`; break;
         case 'menu_gp': response = "Gõ chữ 'Perm + Tên trái' (VD: Perm Kitsune) để tớ báo giá tự động nè."; break;
-        case 'menu_admin': response = "Đợi xíu nha t hú sếp Nguyên Phát ra check."; bot.sendMessage(config.adminId, `🔔 Khách @${query.from.username || 'ẩn danh'} đang GỌI ADMIN!`); break;
+        case 'menu_admin': response = "Đợi xíu nha t hú sếp Phát ra check."; bot.sendMessage(config.adminId, `🔔 Khách @${query.from.username || 'ẩn danh'} đang GỌI ADMIN!`); break;
     }
 
     if (response) bot.sendMessage(chatId, response);
